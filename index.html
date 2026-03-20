@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sohan Industries — Salary Dashboard Feb 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#F4F6FA;--white:#fff;--navy:#1B2B4B;--navy2:#243655;
+  --blue:#2563EB;--blue2:#3B82F6;--teal:#0F7B8B;
+  --green:#059669;--green2:#D1FAE5;
+  --amber:#D97706;--amber2:#FEF3C7;
+  --red:#DC2626;--red2:#FEE2E2;
+  --purple:#7C3AED;--purple2:#EDE9FE;
+  --slate:#475569;--muted:#94A3B8;--border:#E2E8F0;
+  --shadow:0 2px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)
+}
+body{font-family:Calibri,'Segoe UI',sans-serif;background:var(--bg);color:var(--slate);min-height:100vh}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);padding:0;box-shadow:0 2px 16px rgba(0,0,0,.25)}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:3px solid var(--blue2)}
+.hdr-brand{display:flex;align-items:center;gap:14px}
+.hdr-logo{width:46px;height:46px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;font-family:Calibri}
+.hdr-title h1{font-size:20px;font-weight:700;color:#fff;letter-spacing:.3px}
+.hdr-title p{font-size:11px;color:var(--muted);margin-top:1px}
+.hdr-badges{display:flex;gap:10px;align-items:center}
+.badge{background:rgba(59,130,246,.2);border:1px solid var(--blue2);color:#93C5FD;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.green{background:rgba(5,150,105,.2);border-color:#10B981;color:#6EE7B7}
+
+/* ── FILTERS BAR ── */
+.filters{background:#fff;border-bottom:1px solid var(--border);padding:12px 32px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.filter-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}
+select,input[type=text]{border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;font-size:12.5px;font-family:Calibri,sans-serif;color:var(--navy);background:#fff;outline:none;transition:border .2s;cursor:pointer}
+select:focus,input[type=text]:focus{border-color:var(--blue2)}
+.filter-reset{background:var(--navy);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:12.5px;cursor:pointer;font-family:Calibri,sans-serif;transition:opacity .2s}
+.filter-reset:hover{opacity:.85}
+.filter-count{font-size:12px;color:var(--muted);margin-left:auto}
+.filter-count span{font-weight:700;color:var(--navy)}
+
+/* ── MAIN ── */
+.main{padding:24px 32px}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.kpi{background:#fff;border-radius:14px;padding:18px 20px;box-shadow:var(--shadow);border-top:4px solid var(--blue2);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.kpi.teal{border-top-color:var(--teal)}
+.kpi.green{border-top-color:var(--green)}
+.kpi.amber{border-top-color:var(--amber)}
+.kpi.red{border-top-color:var(--red)}
+.kpi.purple{border-top-color:var(--purple)}
+.kpi-lbl{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}
+.kpi-val{font-size:22px;font-weight:800;color:var(--navy);line-height:1}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.kpi-icon{position:absolute;right:14px;top:14px;font-size:28px;opacity:.12}
+
+/* ── 2-COL GRID ── */
+.chart-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin-bottom:18px}
+.chart-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin-bottom:18px}
+.chart-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.card{background:#fff;border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+.card h3{font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.card p{font-size:11px;color:var(--muted);margin-bottom:14px}
+.chart-wrap{position:relative;height:220px}
+.chart-wrap.sm{height:180px}
+.chart-wrap.lg{height:260px}
+
+/* ── TABLE ── */
+.table-section{margin-bottom:22px}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.table-toolbar h3{font-size:15px;font-weight:700;color:var(--navy)}
+.search-wrap{position:relative}
+.search-wrap input{padding-left:32px;width:220px}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
+.tbl-wrap{background:#fff;border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.tbl-scroll{overflow-x:auto;max-height:400px;overflow-y:auto}
+.tbl-scroll::-webkit-scrollbar{width:5px;height:5px}
+.tbl-scroll::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead{position:sticky;top:0;z-index:10}
+thead th{background:var(--navy);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:11.5px;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{background:var(--navy2)}
+thead th.sorted-asc::after{content:' ↑'}
+thead th.sorted-desc::after{content:' ↓'}
+thead th.num{text-align:right}
+tbody tr{border-bottom:1px solid var(--border);transition:background .12s}
+tbody tr:hover{background:#F8FAFF}
+tbody td{padding:9px 14px;white-space:nowrap}
+tbody td.num{text-align:right;font-variant-numeric:tabular-nums;font-family:Calibri,monospace}
+.dept-tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10.5px;font-weight:600}
+.emp-name{font-weight:600;color:var(--navy)}
+.emp-code{font-size:10.5px;color:var(--muted)}
+.days-bar-wrap{display:flex;align-items:center;gap:6px}
+.days-bar{height:7px;background:var(--border);border-radius:4px;width:50px;overflow:hidden}
+.days-fill{height:100%;border-radius:4px;background:var(--blue2)}
+.days-fill.full{background:var(--green)}
+.days-fill.partial{background:var(--amber)}
+.net-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700}
+
+/* DEPT COLORS */
+.d-qc{background:#EDE9FE;color:#6D28D9}
+.d-mkt{background:#FEF3C7;color:#92400E}
+.d-prod{background:#DCFCE7;color:#166534}
+.d-admin{background:#E0F2FE;color:#0369A1}
+.d-acc{background:#FCE7F3;color:#9D174D}
+.d-it{background:#F0FDF4;color:#15803D}
+.d-exp{background:#FFF7ED;color:#C2410C}
+.d-ops{background:#EFF6FF;color:#1D4ED8}
+.d-dis{background:#F5F3FF;color:#5B21B6}
+.d-ehs{background:#F0FDF4;color:#065F46}
+.d-proj{background:#FEF2F2;color:#B91C1C}
+.d-other{background:#F1F5F9;color:#475569}
+
+/* ── PAYSLIP MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:18px;width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.25);transform:scale(.92);transition:transform .25s}
+.modal-overlay.open .modal{transform:scale(1)}
+.modal-head{background:linear-gradient(135deg,var(--navy),var(--navy2));padding:20px 24px;border-radius:18px 18px 0 0;border-bottom:3px solid var(--blue2)}
+.modal-head h3{font-size:16px;font-weight:700;color:#fff}
+.modal-head p{font-size:11px;color:var(--muted);margin-top:2px}
+.modal-close{float:right;background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;margin-top:-2px}
+.modal-close:hover{color:#fff}
+.modal-body{padding:24px}
+.slip-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.slip-name{font-size:18px;font-weight:800;color:var(--navy)}
+.slip-info{font-size:12px;color:var(--muted);margin-top:3px}
+.slip-ctc{text-align:right}
+.slip-ctc .big{font-size:22px;font-weight:800;color:var(--navy)}
+.slip-ctc .lbl{font-size:10px;color:var(--muted);text-transform:uppercase}
+.slip-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+.slip-box{background:var(--bg);border-radius:10px;padding:14px 16px}
+.slip-box h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.slip-row{display:flex;justify-content:space-between;padding:4px 0;font-size:12.5px}
+.slip-row span:first-child{color:var(--slate)}
+.slip-row span:last-child{font-weight:600;color:var(--navy);font-variant-numeric:tabular-nums}
+.slip-total{display:flex;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:2px solid var(--border);font-weight:800;font-size:13px;color:var(--navy)}
+.slip-net{background:linear-gradient(135deg,var(--navy),#2563EB);border-radius:10px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center}
+.slip-net .label{font-size:12px;color:#93C5FD;font-weight:600;text-transform:uppercase;letter-spacing:.8px}
+.slip-net .amount{font-size:26px;font-weight:800;color:#fff}
+.slip-deduction-pct{font-size:11px;color:#93C5FD;margin-top:2px}
+
+/* ── PROGRESS BARS ── */
+.prog-list{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.prog-item{font-size:12px}
+.prog-header{display:flex;justify-content:space-between;margin-bottom:4px}
+.prog-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;transition:width 1s ease}
+
+/* MISC */
+.no-data{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+.footer{text-align:center;font-size:11px;color:var(--muted);padding:20px;margin-top:10px}
+.tooltip-val{font-weight:700;color:var(--navy)}
+@media(max-width:900px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .chart-grid,.chart-grid-3,.chart-grid-2{grid-template-columns:1fr}
+  .main,.filters,.hdr-inner{padding-left:16px;padding-right:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-brand">
+      <div class="hdr-logo">SI</div>
+      <div class="hdr-title">
+        <h1>Sohan Industries Pvt. Ltd.</h1>
+        <p>Salary Register · February 2026 · Interactive Dashboard</p>
+      </div>
+    </div>
+    <div class="hdr-badges">
+      <span class="badge green">35 Employees</span>
+      <span class="badge">Feb 2026</span>
+      <span class="badge" id="hdr-total">Loading…</span>
+    </div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <span class="filter-label">Filter by</span>
+  <select id="f-dept" onchange="applyFilters()">
+    <option value="">All Departments</option>
+  </select>
+  <select id="f-branch" onchange="applyFilters()">
+    <option value="">All Branches</option>
+  </select>
+  <select id="f-ctc" onchange="applyFilters()">
+    <option value="">All CTC Ranges</option>
+    <option value="0-25000">Below ₹25,000</option>
+    <option value="25001-50000">₹25,001 – ₹50,000</option>
+    <option value="50001-100000">₹50,001 – ₹1,00,000</option>
+    <option value="100001-999999">Above ₹1,00,000</option>
+  </select>
+  <select id="f-emp" onchange="applyFilters()" style="min-width:200px">
+    <option value="">All Employees</option>
+  </select>
+  <select id="f-days" onchange="applyFilters()">
+    <option value="">All Attendance</option>
+    <option value="full">Full Month (28 days)</option>
+    <option value="partial">Partial Attendance</option>
+  </select>
+  <button class="filter-reset" onclick="resetFilters()">↺ Reset</button>
+  <span class="filter-count" id="filter-count">Showing <span>35</span> of 35 employees</span>
+</div>
+
+<div class="main">
+
+  <!-- KPI CARDS -->
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-lbl">Total Monthly CTC</div>
+      <div class="kpi-val" id="kpi-ctc">—</div>
+      <div class="kpi-sub" id="kpi-ctc-sub">All 35 employees</div>
+      <div class="kpi-icon">💰</div>
+    </div>
+    <div class="kpi teal">
+      <div class="kpi-lbl">Total Net Pay</div>
+      <div class="kpi-val" id="kpi-net">—</div>
+      <div class="kpi-sub" id="kpi-net-sub">After all deductions</div>
+      <div class="kpi-icon">🏦</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-lbl">Average CTC</div>
+      <div class="kpi-val" id="kpi-avg">—</div>
+      <div class="kpi-sub" id="kpi-avg-sub">Per employee</div>
+      <div class="kpi-icon">📊</div>
+    </div>
+    <div class="kpi amber">
+      <div class="kpi-lbl">Total Deductions</div>
+      <div class="kpi-val" id="kpi-ded">—</div>
+      <div class="kpi-sub" id="kpi-ded-sub">PF + PT + Tax + Loan</div>
+      <div class="kpi-icon">📉</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-lbl">Total PF</div>
+      <div class="kpi-val" id="kpi-pf">—</div>
+      <div class="kpi-sub">Employer PF contributions</div>
+      <div class="kpi-icon">🔒</div>
+    </div>
+  </div>
+
+  <!-- ROW 2: KPI extras -->
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:22px">
+    <div class="kpi purple">
+      <div class="kpi-lbl">Income Tax (TDS)</div>
+      <div class="kpi-val" id="kpi-tax">—</div>
+      <div class="kpi-sub">Monthly TDS deducted</div>
+      <div class="kpi-icon">🧾</div>
+    </div>
+    <div class="kpi" style="border-top-color:#F59E0B">
+      <div class="kpi-lbl">Company Loans</div>
+      <div class="kpi-val" id="kpi-loan">—</div>
+      <div class="kpi-sub">Outstanding loan deductions</div>
+      <div class="kpi-icon">🤝</div>
+    </div>
+    <div class="kpi" style="border-top-color:#10B981">
+      <div class="kpi-lbl">Highest CTC</div>
+      <div class="kpi-val" id="kpi-max">—</div>
+      <div class="kpi-sub" id="kpi-max-name">—</div>
+      <div class="kpi-icon">⭐</div>
+    </div>
+    <div class="kpi" style="border-top-color:#6366F1">
+      <div class="kpi-lbl">Total Bonus</div>
+      <div class="kpi-val" id="kpi-bonus">—</div>
+      <div class="kpi-sub" id="kpi-bonus-sub">This month</div>
+      <div class="kpi-icon">🎁</div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="chart-grid">
+    <div class="card">
+      <h3>Department-wise Salary Cost</h3>
+      <p>Total gross earning per department (₹)</p>
+      <div class="chart-wrap"><canvas id="chart-dept"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Salary Component Breakdown</h3>
+      <p>Composition of total CTC (₹ 21.73 L)</p>
+      <div class="chart-wrap"><canvas id="chart-comp"></canvas></div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 2 -->
+  <div class="chart-grid-3">
+    <div class="card">
+      <h3>CTC Distribution</h3>
+      <p>No. of employees in each pay band</p>
+      <div class="chart-wrap sm"><canvas id="chart-ctc-dist"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Branch-wise Headcount</h3>
+      <p>Employees per location</p>
+      <div class="chart-wrap sm"><canvas id="chart-branch"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Deduction Breakdown</h3>
+      <p>Total deductions by type (₹)</p>
+      <div class="chart-wrap sm"><canvas id="chart-ded"></canvas></div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 3 -->
+  <div class="chart-grid-2">
+    <div class="card">
+      <h3>Top 10 Earners — Net Pay</h3>
+      <p>Highest net pay recipients this month</p>
+      <div class="chart-wrap lg"><canvas id="chart-top10"></canvas></div>
+    </div>
+    <div class="card">
+      <h3>Gross vs Net Pay</h3>
+      <p>Gross earning vs net pay — all employees</p>
+      <div class="chart-wrap lg"><canvas id="chart-gross-net"></canvas></div>
+    </div>
+  </div>
+
+  <!-- DEPT SALARY PROGRESS -->
+  <div class="chart-grid-2" style="margin-bottom:22px">
+    <div class="card">
+      <h3>Department Share of Total Payroll</h3>
+      <p>% of total gross earning (₹ 21.23 L)</p>
+      <div id="dept-progress" class="prog-list" style="margin-top:8px"></div>
+    </div>
+    <div class="card">
+      <h3>Attendance Summary</h3>
+      <p>Days paid breakdown across all employees</p>
+      <div class="chart-wrap sm"><canvas id="chart-attendance"></canvas></div>
+    </div>
+  </div>
+
+  <!-- EMPLOYEE TABLE -->
+  <div class="table-section">
+    <div class="table-toolbar">
+      <h3>📋 Employee Salary Register — February 2026</h3>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="tbl-search" placeholder="Search name, code, dept…" oninput="applyFilters()"/>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <div class="tbl-scroll">
+        <table id="emp-table">
+          <thead>
+            <tr>
+              <th onclick="sortTable('code')">Code</th>
+              <th onclick="sortTable('name')">Employee Name</th>
+              <th onclick="sortTable('dept')">Department</th>
+              <th onclick="sortTable('branch')">Branch</th>
+              <th onclick="sortTable('days')" class="num">Days</th>
+              <th onclick="sortTable('ctc')" class="num">CTC</th>
+              <th onclick="sortTable('basic')" class="num">Basic</th>
+              <th onclick="sortTable('hra')" class="num">HRA</th>
+              <th onclick="sortTable('bonus')" class="num">Bonus</th>
+              <th onclick="sortTable('gross')" class="num">Gross</th>
+              <th onclick="sortTable('deductions')" class="num">Deductions</th>
+              <th onclick="sortTable('net')" class="num">Net Pay</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbl-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<div class="footer">Sohan Industries Pvt. Ltd. · Salary Register February 2026 · Confidential · Internal Use Only</div>
+
+<!-- PAYSLIP MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-head">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <h3 id="modal-title">Employee Payslip</h3>
+      <p id="modal-subtitle">February 2026 · Sohan Industries Pvt. Ltd.</p>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const RAW = [
+  {"code":"SI0003","name":"Ganesh Jagdale","doj":"1998-08-08","dept":"Production","desig":"Production Incharge","branch":"Kurkumbh (Pune)","bank":"Punjab National Bank","ctc":51800,"days":28,"basic":25900,"hra":12950,"bonus":0,"other":11150,"gross":50000,"loan":0,"food":40,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":2140,"net":47860},
+  {"code":"SI0004","name":"Shreya Acharekar","doj":"2013-04-01","dept":"Quality Control","desig":"Sr. Quality Assurance Officer","branch":"Dombivli","bank":"Punjab National Bank","ctc":46102,"days":28,"basic":23051,"hra":11526,"bonus":0,"other":9725,"gross":44302,"loan":10000,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":12100,"net":32202},
+  {"code":"SI0005","name":"Ruchi Nitin Jadhav","doj":"2014-01-05","dept":"Dispatch","desig":"Billing Assistant","branch":"Dombivli","bank":"Bank of India","ctc":24350,"days":28,"basic":13996,"hra":6998,"bonus":0,"other":1556,"gross":22550,"loan":0,"food":0,"pf":1800,"pt":0,"lwf":0,"tax":0,"deductions":1800,"net":20750},
+  {"code":"SI0006","name":"Ramesh Londhe","doj":"2017-01-01","dept":"Admin","desig":"Ast. Manager","branch":"Kurkumbh (Pune)","bank":"Bank of Maharashtra","ctc":32116,"days":28,"basic":16058,"hra":8029,"bonus":0,"other":6229,"gross":30316,"loan":0,"food":80,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":2180,"net":28136},
+  {"code":"SI0007","name":"Shraddha Nitin Rane","doj":"2018-06-02","dept":"Accounts","desig":"Sr. Accountant","branch":"Dombivli","bank":"Punjab National Bank","ctc":44030,"days":28,"basic":22015,"hra":11008,"bonus":0,"other":9207,"gross":42230,"loan":3000,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":5100,"net":37130},
+  {"code":"SI0008","name":"Seema Bhosale","doj":"2019-04-27","dept":"Quality Control","desig":"QC Chemist","branch":"Dombivli","bank":"Bank of India","ctc":20720,"days":28,"basic":13996,"hra":5044,"bonus":0,"other":0,"gross":19040,"loan":0,"food":0,"pf":1680,"pt":0,"lwf":0,"tax":0,"deductions":1680,"net":17360},
+  {"code":"SI0009","name":"Rushikesk Taware","doj":"2019-12-07","dept":"Production","desig":"Production Executive","branch":"Kurkumbh (Pune)","bank":"Axis Bank","ctc":24000,"days":28,"basic":13996,"hra":6998,"bonus":0,"other":3006,"gross":24000,"loan":0,"food":680,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":980,"net":23020},
+  {"code":"SI0010","name":"Pranali Chavan","doj":"2020-12-01","dept":"Quality Control","desig":"QC Executive","branch":"Dombivli","bank":"Union Bank of India","ctc":21500,"days":28,"basic":13996,"hra":6998,"bonus":0,"other":506,"gross":21500,"loan":0,"food":0,"pf":0,"pt":0,"lwf":0,"tax":0,"deductions":0,"net":21500},
+  {"code":"SI0011","name":"G. Surya Narayan Rao","doj":"2020-12-15","dept":"Marketing","desig":"Zonal Sales Head","branch":"North (Field)","bank":"State Bank Of India","ctc":111500,"days":28,"basic":55750,"hra":27875,"bonus":2790,"other":23285,"gross":109700,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":2100,"net":107600},
+  {"code":"SI0012","name":"Nityananda Sankhua","doj":"2021-03-01","dept":"Marketing","desig":"Zonal Sales Head North","branch":"North (Field)","bank":"HDFC BANK","ctc":185000,"days":28,"basic":92500,"hra":46250,"bonus":4620,"other":39830,"gross":183200,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":24482,"deductions":26582,"net":156618},
+  {"code":"SI0013","name":"Anjali Sawant","doj":"2022-03-01","dept":"Quality Control","desig":"Lab Asst.","branch":"Dombivli","bank":"Bank Of Baroda","ctc":17000,"days":28,"basic":13996,"hra":3004,"bonus":0,"other":0,"gross":17000,"loan":0,"food":0,"pf":0,"pt":0,"lwf":0,"tax":0,"deductions":0,"net":17000},
+  {"code":"SI0015","name":"Eknath Vishnu Sabale","doj":"2022-07-21","dept":"Production","desig":"Production Officer","branch":"Dombivli","bank":"Punjab National Bank","ctc":21000,"days":28,"basic":13996,"hra":7004,"bonus":0,"other":0,"gross":21000,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":20700},
+  {"code":"SI0016","name":"Tatyaso Tukaram Kashid","doj":"2022-10-01","dept":"Dispatch","desig":"Executive","branch":"Dombivli","bank":"Union Bank of India","ctc":28500,"days":26,"basic":13232,"hra":6616,"bonus":882,"other":4063,"gross":24793,"loan":5000,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":7100,"net":17693},
+  {"code":"SI0017","name":"Naresh Prakash Patil","doj":"2023-01-23","dept":"Projects & Maintenance","desig":"Project Engineer","branch":"Dombivli","bank":"State Bank Of India","ctc":70833,"days":28,"basic":35417,"hra":17709,"bonus":2360,"other":13547,"gross":69033,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":2100,"net":66933},
+  {"code":"SI0018","name":"Mamta Janakwar","doj":"2023-02-15","dept":"Quality Control","desig":"Lab Asst.","branch":"Dombivli","bank":"Abhyudaya co-op.bank ltd.","ctc":14500,"days":25,"basic":12496,"hra":450,"bonus":0,"other":0,"gross":12946,"loan":0,"food":0,"pf":0,"pt":0,"lwf":0,"tax":0,"deductions":0,"net":12946},
+  {"code":"SI0019","name":"Shankar Laxman Patil","doj":"2023-04-03","dept":"Production","desig":"Senior Production Officer","branch":"Dombivli","bank":"Katak Mahindra Bank","ctc":52072,"days":27,"basic":25106,"hra":12553,"bonus":1307,"other":9511,"gross":48477,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":2100,"net":46377},
+  {"code":"SI0020","name":"Ashwini Shiddhesh Sawant","doj":"2023-09-04","dept":"Admin","desig":"Receptionist and Admin Astt","branch":"Dombivli","bank":"IDBI Bank","ctc":25152,"days":28,"basic":13996,"hra":6998,"bonus":0,"other":2358,"gross":23352,"loan":0,"food":0,"pf":1800,"pt":0,"lwf":0,"tax":0,"deductions":1800,"net":21552},
+  {"code":"SI0021","name":"Haresh Ramesh Bawadiya","doj":"2023-09-04","dept":"Operations","desig":"Factory Manager","branch":"Dombivli","bank":"HDFC Bank","ctc":112500,"days":28,"basic":56250,"hra":28125,"bonus":3749,"other":24376,"gross":112500,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":3468,"deductions":3768,"net":108732},
+  {"code":"SI0022","name":"Naina Rao","doj":"2023-09-12","dept":"Marketing","desig":"Sr. Sales Coordinator","branch":"Dombivli","bank":"IDFC","ctc":52500,"days":28,"basic":26250,"hra":13125,"bonus":1666,"other":11459,"gross":52500,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":52200},
+  {"code":"SI0023","name":"Abhijit Ashok Deshpande","doj":"2024-02-08","dept":"IT","desig":"IT Executive","branch":"Dombivli","bank":"Kotak Mahindra","ctc":26500,"days":28,"basic":13996,"hra":6998,"bonus":926,"other":4580,"gross":26500,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":26200},
+  {"code":"SI0024","name":"Pralhad Avhad","doj":"2024-07-01","dept":"Export","desig":"Sr. Export Executive","branch":"Kalyan","bank":"IDBI Bank","ctc":56920,"days":28,"basic":28460,"hra":14230,"bonus":1797,"other":10633,"gross":55120,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":2100,"net":53020},
+  {"code":"SI0025","name":"Ankita Nandkumar Hegishte","doj":"2025-01-02","dept":"Accounts","desig":"Jr. Accountant","branch":"Dombivli","bank":"Bank Of Maharashtra","ctc":18000,"days":28,"basic":13996,"hra":2604,"bonus":1400,"other":0,"gross":18000,"loan":0,"food":0,"pf":0,"pt":0,"lwf":0,"tax":0,"deductions":0,"net":18000},
+  {"code":"SI0026","name":"Archana Mandar Walimbe","doj":"2025-07-01","dept":"Marketing","desig":"Sales Coordinator","branch":"Dombivli","bank":"State Bank of India","ctc":56250,"days":28,"basic":28125,"hra":14063,"bonus":1400,"other":10862,"gross":54450,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":2100,"net":52350},
+  {"code":"SI0027","name":"Santosh Patil","doj":"2025-07-01","dept":"Marketing","desig":"Technical Sales Manager","branch":"Dombivli","bank":"HDFC","ctc":175000,"days":28,"basic":87500,"hra":43750,"bonus":5831,"other":36119,"gross":173200,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":25276,"deductions":27376,"net":145824},
+  {"code":"SI0029","name":"Bhushan Vasant Ahire","doj":"2025-03-17","dept":"Quality Control","desig":"Sr. QA & QC Executive","branch":"Badlapur","bank":"Kotak Mahindra","ctc":75365,"days":27,"basic":36337,"hra":18169,"bonus":2281,"other":14151,"gross":70938,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":0,"deductions":2100,"net":68838},
+  {"code":"SI0030","name":"Jitendra A Ghatte","doj":"2025-03-21","dept":"Production","desig":"Production Manager","branch":"Kurkumbh (Pune)","bank":"Axis Bank","ctc":54167,"days":28,"basic":27084,"hra":13542,"bonus":1805,"other":11736,"gross":54167,"loan":0,"food":80,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":380,"net":53787},
+  {"code":"SI0031","name":"Rakesh RK","doj":"2025-08-04","dept":"Marketing","desig":"Zonal Manager - South","branch":"South (Field)","bank":"HDFC BANK - Erode Branch","ctc":216667,"days":28,"basic":108334,"hra":54167,"bonus":7219,"other":45147,"gross":214867,"loan":0,"food":0,"pf":1800,"pt":300,"lwf":0,"tax":40285,"deductions":42385,"net":172482},
+  {"code":"SI0032","name":"Changdeo Laxman Kadam","doj":"2025-08-04","dept":"EHS","desig":"Factory Manager","branch":"Dombivli","bank":"Abhyudaya Co.Op Bank Ltd","ctc":111250,"days":28,"basic":55625,"hra":27813,"bonus":3707,"other":24105,"gross":111250,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":110950},
+  {"code":"SI0033","name":"Vandana Tippe","doj":"2025-07-05","dept":"Quality Control","desig":"Sr QA Chemist","branch":"Dombivli","bank":"State Bank of India","ctc":40000,"days":28,"basic":20000,"hra":10000,"bonus":1333,"other":8667,"gross":40000,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":39700},
+  {"code":"SI0034","name":"Akshata Vartak","doj":"2025-07-16","dept":"Quality Control","desig":"QC Chemist","branch":"Dombivli","bank":"HDFC","ctc":21001,"days":27,"basic":13496,"hra":6176,"bonus":579,"other":0,"gross":20251,"loan":0,"food":0,"pf":0,"pt":0,"lwf":0,"tax":0,"deductions":0,"net":20251},
+  {"code":"SI0036","name":"Raju Madhesh","doj":"2025-09-10","dept":"Marketing","desig":"Technical Sales Manager South","branch":"South (Field)","bank":"DBS BANK","ctc":86250,"days":28,"basic":43125,"hra":21563,"bonus":2874,"other":18688,"gross":86250,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":85950},
+  {"code":"SI0037","name":"Sachin Padwal","doj":"2025-09-22","dept":"Production","desig":"Asst Manager","branch":"Dombivli","bank":"HDFC","ctc":95833,"days":26,"basic":44494,"hra":22248,"bonus":2965,"other":19281,"gross":88988,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":88688},
+  {"code":"SI0038","name":"Swati Karhae","doj":"2025-11-22","dept":"Quality Control","desig":"Sr. QC Officer","branch":"Dombivli","bank":"ICICI Bank","ctc":45833,"days":26,"basic":21280,"hra":10641,"bonus":1773,"other":8866,"gross":42560,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":42260},
+  {"code":"SI0039","name":"Sanika Patil","doj":"2025-11-25","dept":"Quality Control","desig":"QC Chemist","branch":"Dombivli","bank":"Union Bank of India","ctc":22500,"days":27,"basic":13496,"hra":6748,"bonus":1124,"other":328,"gross":21696,"loan":0,"food":0,"pf":0,"pt":0,"lwf":0,"tax":0,"deductions":0,"net":21696},
+  {"code":"SI0040","name":"Prakash Kumar","doj":"2025-12-01","dept":"Marketing","desig":"Technical Sales Manager","branch":"North (Field)","bank":"State Bank of India","ctc":116667,"days":28,"basic":58334,"hra":29167,"bonus":4859,"other":24307,"gross":116667,"loan":0,"food":0,"pf":0,"pt":300,"lwf":0,"tax":0,"deductions":300,"net":116367}
+];
+
+// ══════════════════════════════════════════
+// STATE & HELPERS
+// ══════════════════════════════════════════
+let filtered = [...RAW];
+let sortCol = 'ctc', sortDir = -1;
+const charts = {};
+
+const fmt = n => '₹' + Math.abs(n).toLocaleString('en-IN');
+const fmtL = n => {
+  if(n>=100000) return '₹' + (n/100000).toFixed(2) + 'L';
+  return '₹' + n.toLocaleString('en-IN');
+};
+
+const DEPT_COLORS = {
+  'Quality Control':'#7C3AED','Marketing':'#D97706','Production':'#059669',
+  'Admin':'#0369A1','Accounts':'#9D174D','IT':'#15803D','Export':'#C2410C',
+  'Operations':'#1D4ED8','Dispatch':'#5B21B6','EHS':'#065F46',
+  'Projects & Maintenance':'#B91C1C','Other':'#475569'
+};
+const DEPT_CLASS = {
+  'Quality Control':'d-qc','Marketing':'d-mkt','Production':'d-prod',
+  'Admin':'d-admin','Accounts':'d-acc','IT':'d-it','Export':'d-exp',
+  'Operations':'d-ops','Dispatch':'d-dis','EHS':'d-ehs',
+  'Projects & Maintenance':'d-proj'
+};
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function init() {
+  // Populate filter dropdowns
+  const depts = [...new Set(RAW.map(e=>e.dept))].sort();
+  const branches = [...new Set(RAW.map(e=>e.branch))].sort();
+  const fd = document.getElementById('f-dept');
+  const fb = document.getElementById('f-branch');
+  const fe = document.getElementById('f-emp');
+  depts.forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; fd.appendChild(o); });
+  branches.forEach(b=>{ const o=document.createElement('option'); o.value=b; o.textContent=b; fb.appendChild(o); });
+  [...RAW].sort((a,b)=>a.name.localeCompare(b.name)).forEach(e=>{
+    const o=document.createElement('option');
+    o.value=e.code;
+    o.textContent=`${e.name} (${e.code})`;
+    fe.appendChild(o);
+  });
+
+  renderAll();
+}
+
+function renderAll() {
+  renderKPIs();
+  renderTable();
+  renderCharts();
+  renderDeptProgress();
+}
+
+// ══════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════
+function applyFilters() {
+  const dept = document.getElementById('f-dept').value;
+  const branch = document.getElementById('f-branch').value;
+  const ctcRange = document.getElementById('f-ctc').value;
+  const days = document.getElementById('f-days').value;
+  const empCode = document.getElementById('f-emp').value;
+  const search = document.getElementById('tbl-search').value.toLowerCase();
+
+  filtered = RAW.filter(e => {
+    if(empCode && e.code !== empCode) return false;
+    if(dept && e.dept !== dept) return false;
+    if(branch && e.branch !== branch) return false;
+    if(ctcRange) {
+      const [lo,hi] = ctcRange.split('-').map(Number);
+      if(e.ctc < lo || e.ctc > hi) return false;
+    }
+    if(days === 'full' && e.days < 28) return false;
+    if(days === 'partial' && e.days >= 28) return false;
+    if(search && !e.name.toLowerCase().includes(search) &&
+       !e.code.toLowerCase().includes(search) &&
+       !e.dept.toLowerCase().includes(search) &&
+       !e.desig.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  document.getElementById('filter-count').innerHTML =
+    `Showing <span>${filtered.length}</span> of ${RAW.length} employees`;
+  renderAll();
+}
+
+function resetFilters() {
+  document.getElementById('f-dept').value='';
+  document.getElementById('f-branch').value='';
+  document.getElementById('f-ctc').value='';
+  document.getElementById('f-days').value='';
+  document.getElementById('f-emp').value='';
+  document.getElementById('tbl-search').value='';
+  filtered = [...RAW];
+  document.getElementById('filter-count').innerHTML =
+    `Showing <span>${filtered.length}</span> of ${RAW.length} employees`;
+  renderAll();
+}
+
+// ══════════════════════════════════════════
+// KPIs
+// ══════════════════════════════════════════
+function renderKPIs() {
+  const d = filtered;
+  const totalCTC = d.reduce((s,e)=>s+e.ctc,0);
+  const totalNet = d.reduce((s,e)=>s+e.net,0);
+  const totalDed = d.reduce((s,e)=>s+e.deductions,0);
+  const totalPF  = d.reduce((s,e)=>s+e.pf,0);
+  const totalTax = d.reduce((s,e)=>s+e.tax,0);
+  const totalLoan= d.reduce((s,e)=>s+e.loan,0);
+  const totalBonus=d.reduce((s,e)=>s+e.bonus,0);
+  const avg = d.length ? Math.round(totalCTC/d.length) : 0;
+  const maxE = d.length ? d.reduce((a,b)=>b.ctc>a.ctc?b:a) : null;
+
+  document.getElementById('kpi-ctc').textContent = fmtL(totalCTC);
+  document.getElementById('kpi-ctc-sub').textContent = `${d.length} employees`;
+  document.getElementById('kpi-net').textContent = fmtL(totalNet);
+  document.getElementById('kpi-net-sub').textContent = `${((totalNet/totalCTC)*100).toFixed(1)}% of CTC paid out`;
+  document.getElementById('kpi-avg').textContent = fmtL(avg);
+  document.getElementById('kpi-avg-sub').textContent = 'Per employee';
+  document.getElementById('kpi-ded').textContent = fmtL(totalDed);
+  document.getElementById('kpi-ded-sub').textContent = `${((totalDed/totalCTC)*100).toFixed(1)}% of total CTC`;
+  document.getElementById('kpi-pf').textContent = fmtL(totalPF);
+  document.getElementById('kpi-tax').textContent = fmtL(totalTax);
+  document.getElementById('kpi-loan').textContent = fmtL(totalLoan);
+  document.getElementById('kpi-bonus').textContent = fmtL(totalBonus);
+  document.getElementById('kpi-bonus-sub').textContent = `Across ${d.filter(e=>e.bonus>0).length} employees`;
+  if(maxE){
+    document.getElementById('kpi-max').textContent = fmtL(maxE.ctc);
+    document.getElementById('kpi-max-name').textContent = maxE.name;
+  }
+  document.getElementById('hdr-total').textContent = 'Payroll: ' + fmtL(totalCTC);
+}
+
+// ══════════════════════════════════════════
+// TABLE
+// ══════════════════════════════════════════
+function sortTable(col) {
+  if(sortCol === col) sortDir *= -1;
+  else { sortCol=col; sortDir = col==='name'?1:-1; }
+  document.querySelectorAll('thead th').forEach(th=>{
+    th.classList.remove('sorted-asc','sorted-desc');
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const sorted = [...filtered].sort((a,b)=>{
+    const av = a[sortCol], bv = b[sortCol];
+    if(typeof av === 'string') return av.localeCompare(bv)*sortDir;
+    return (av-bv)*sortDir;
+  });
+
+  const tbody = document.getElementById('tbl-body');
+  if(!sorted.length){
+    tbody.innerHTML = '<tr><td colspan="13" class="no-data">No employees match the current filters.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = sorted.map(e => {
+    const dClass = DEPT_CLASS[e.dept]||'d-other';
+    const daysPct = (e.days/28)*100;
+    const daysClass = e.days>=28?'full':'partial';
+    return `<tr>
+      <td><span style="font-size:11px;color:var(--muted)">${e.code}</span></td>
+      <td>
+        <div class="emp-name">${e.name}</div>
+        <div class="emp-code">${e.desig}</div>
+      </td>
+      <td><span class="dept-tag ${dClass}">${e.dept}</span></td>
+      <td style="font-size:12px">${e.branch}</td>
+      <td class="num">
+        <div class="days-bar-wrap">
+          <div class="days-bar"><div class="days-fill ${daysClass}" style="width:${daysPct}%"></div></div>
+          <span style="font-size:12px;font-weight:600">${e.days}</span>
+        </div>
+      </td>
+      <td class="num" style="font-weight:700;color:var(--navy)">${fmt(e.ctc)}</td>
+      <td class="num">${fmt(e.basic)}</td>
+      <td class="num">${fmt(e.hra)}</td>
+      <td class="num" style="color:${e.bonus?'var(--green)':'var(--muted)'}">${e.bonus?fmt(e.bonus):'—'}</td>
+      <td class="num">${fmt(e.gross)}</td>
+      <td class="num" style="color:var(--red)">${fmt(e.deductions)}</td>
+      <td class="num"><span class="net-badge" style="background:${e.net>=100000?'#DCFCE7':e.net>=50000?'#EDE9FE':'#F1F5F9'};color:${e.net>=100000?'#166534':e.net>=50000?'#5B21B6':'#475569'}">${fmt(e.net)}</span></td>
+      <td><button onclick="openPayslip('${e.code}')" style="background:var(--navy);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:Calibri">👁 View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// CHARTS
+// ══════════════════════════════════════════
+const PALETTE = ['#2563EB','#7C3AED','#059669','#D97706','#DC2626','#0891B2','#9333EA','#16A34A','#EA580C','#0369A1','#6D28D9','#065F46'];
+
+function mkChart(id, cfg) {
+  if(charts[id]) charts[id].destroy();
+  const el = document.getElementById(id);
+  if(el) charts[id] = new Chart(el.getContext('2d'), cfg);
+}
+
+function renderCharts() {
+  const d = filtered;
+
+  // 1. DEPT CHART
+  const deptMap = {};
+  d.forEach(e=>{ deptMap[e.dept]=(deptMap[e.dept]||0)+e.gross; });
+  const deptEntries = Object.entries(deptMap).sort((a,b)=>b[1]-a[1]);
+  mkChart('chart-dept',{
+    type:'bar',
+    data:{
+      labels: deptEntries.map(x=>x[0]),
+      datasets:[{
+        label:'Gross Earning',
+        data: deptEntries.map(x=>x[1]),
+        backgroundColor: deptEntries.map(x=>DEPT_COLORS[x[0]]+'CC'||'#2563EBCC'),
+        borderColor: deptEntries.map(x=>DEPT_COLORS[x[0]]||'#2563EB'),
+        borderWidth:1.5,borderRadius:6
+      }]
+    },
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>' '+fmt(ctx.raw)}}},
+      scales:{x:{grid:{color:'#F1F5F9'},ticks:{callback:v=>fmtL(v)}},y:{grid:{display:false}}}
+    }
+  });
+
+  // 2. COMPONENT DONUT
+  const totBasic=d.reduce((s,e)=>s+e.basic,0);
+  const totHRA=d.reduce((s,e)=>s+e.hra,0);
+  const totBonus=d.reduce((s,e)=>s+e.bonus,0);
+  const totOther=d.reduce((s,e)=>s+e.other,0);
+  mkChart('chart-comp',{
+    type:'doughnut',
+    data:{
+      labels:['Basic','HRA','Bonus','Other Allowances'],
+      datasets:[{data:[totBasic,totHRA,totBonus,totOther],
+        backgroundColor:['#2563EB','#7C3AED','#059669','#F59E0B'],
+        borderWidth:2,borderColor:'#fff',hoverOffset:8}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'62%',
+      plugins:{legend:{position:'bottom',labels:{padding:12,font:{size:11}}},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${fmt(ctx.raw)} (${((ctx.raw/d.reduce((s,e)=>s+e.ctc,0))*100).toFixed(1)}%)`}}}}
+  });
+
+  // 3. CTC DISTRIBUTION
+  const bands = [
+    {label:'<25K',min:0,max:25000},
+    {label:'25-50K',min:25001,max:50000},
+    {label:'50-1L',min:50001,max:100000},
+    {label:'>1L',min:100001,max:9999999}
+  ];
+  const distCounts = bands.map(b=>d.filter(e=>e.ctc>=b.min&&e.ctc<=b.max).length);
+  mkChart('chart-ctc-dist',{
+    type:'bar',
+    data:{
+      labels:bands.map(b=>b.label),
+      datasets:[{label:'Employees',data:distCounts,
+        backgroundColor:['#DBEAFE','#BFDBFE','#93C5FD','#3B82F6'],
+        borderColor:['#93C5FD','#60A5FA','#3B82F6','#1D4ED8'],
+        borderWidth:1.5,borderRadius:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:'#F1F5F9'},ticks:{stepSize:1}},x:{grid:{display:false}}}}
+  });
+
+  // 4. BRANCH HEADCOUNT
+  const branchMap = {};
+  d.forEach(e=>{ branchMap[e.branch]=(branchMap[e.branch]||0)+1; });
+  const branchEntries = Object.entries(branchMap).sort((a,b)=>b[1]-a[1]);
+  mkChart('chart-branch',{
+    type:'doughnut',
+    data:{
+      labels:branchEntries.map(x=>x[0]),
+      datasets:[{data:branchEntries.map(x=>x[1]),
+        backgroundColor:PALETTE.slice(0,branchEntries.length),
+        borderWidth:2,borderColor:'#fff',hoverOffset:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{legend:{position:'bottom',labels:{padding:8,font:{size:10}}}}}
+  });
+
+  // 5. DEDUCTIONS BREAKDOWN
+  const totPF=d.reduce((s,e)=>s+e.pf,0);
+  const totPT=d.reduce((s,e)=>s+e.pt,0);
+  const totTax=d.reduce((s,e)=>s+e.tax,0);
+  const totLoan=d.reduce((s,e)=>s+e.loan,0);
+  const totFood=d.reduce((s,e)=>s+e.food,0);
+  const totLWF=d.reduce((s,e)=>s+e.lwf,0);
+  mkChart('chart-ded',{
+    type:'pie',
+    data:{
+      labels:['PF','Professional Tax','Income Tax','Company Loan','Food','LWF'],
+      datasets:[{data:[totPF,totPT,totTax,totLoan,totFood,totLWF],
+        backgroundColor:['#3B82F6','#7C3AED','#DC2626','#D97706','#059669','#6B7280'],
+        borderWidth:2,borderColor:'#fff',hoverOffset:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{padding:8,font:{size:10}}},
+        tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${fmt(ctx.raw)}`}}}}
+  });
+
+  // 6. TOP 10 NET PAY
+  const top10 = [...d].sort((a,b)=>b.net-a.net).slice(0,10);
+  mkChart('chart-top10',{
+    type:'bar',
+    data:{
+      labels:top10.map(e=>e.name.split(' ')[0]+(e.name.split(' ')[1]?' '+e.name.split(' ')[1][0]+'.':'')),
+      datasets:[{label:'Net Pay',data:top10.map(e=>e.net),
+        backgroundColor:top10.map((_,i)=>PALETTE[i%PALETTE.length]+'CC'),
+        borderColor:top10.map((_,i)=>PALETTE[i%PALETTE.length]),
+        borderWidth:1.5,borderRadius:6}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` Net Pay: ${fmt(ctx.raw)}`}}},
+      scales:{y:{grid:{color:'#F1F5F9'},ticks:{callback:v=>fmtL(v)}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+
+  // 7. GROSS VS NET
+  const gvn = [...d].sort((a,b)=>b.ctc-a.ctc).slice(0,15);
+  mkChart('chart-gross-net',{
+    type:'bar',
+    data:{
+      labels:gvn.map(e=>e.name.split(' ')[0]),
+      datasets:[
+        {label:'Gross Earning',data:gvn.map(e=>e.gross),backgroundColor:'#BFDBFE',borderColor:'#3B82F6',borderWidth:1.5,borderRadius:4},
+        {label:'Net Pay',data:gvn.map(e=>e.net),backgroundColor:'#BBF7D0',borderColor:'#059669',borderWidth:1.5,borderRadius:4}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,position:'top',labels:{font:{size:11}}}},
+      scales:{y:{grid:{color:'#F1F5F9'},ticks:{callback:v=>fmtL(v)}},x:{grid:{display:false},ticks:{font:{size:10}}}}}
+  });
+
+  // 8. ATTENDANCE
+  const attMap = {28:0,27:0,26:0,25:0};
+  d.forEach(e=>{
+    const k = e.days>=28?28:e.days;
+    attMap[k]=(attMap[k]||0)+1;
+  });
+  mkChart('chart-attendance',{
+    type:'bar',
+    data:{
+      labels:['28 days (Full)','27 days','26 days','25 days'],
+      datasets:[{
+        label:'Employees',
+        data:[attMap[28],attMap[27],attMap[26],attMap[25]],
+        backgroundColor:['#BBF7D0','#FEF9C3','#FED7AA','#FECACA'],
+        borderColor:['#059669','#D97706','#EA580C','#DC2626'],
+        borderWidth:1.5,borderRadius:6
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{grid:{color:'#F1F5F9'},ticks:{stepSize:1}},x:{grid:{display:false}}}}
+  });
+}
+
+// ══════════════════════════════════════════
+// DEPT PROGRESS BARS
+// ══════════════════════════════════════════
+function renderDeptProgress() {
+  const d = filtered;
+  const totalGross = d.reduce((s,e)=>s+e.gross,0);
+  const deptMap = {};
+  d.forEach(e=>{ deptMap[e.dept]=(deptMap[e.dept]||0)+e.gross; });
+  const sorted = Object.entries(deptMap).sort((a,b)=>b[1]-a[1]);
+  const container = document.getElementById('dept-progress');
+  container.innerHTML = sorted.map(([dept,gross])=>{
+    const pct = totalGross ? ((gross/totalGross)*100).toFixed(1) : 0;
+    const color = DEPT_COLORS[dept]||'#2563EB';
+    return `<div class="prog-item">
+      <div class="prog-header">
+        <span style="font-weight:600;color:var(--navy)">${dept}</span>
+        <span style="color:var(--muted);font-size:11px">${fmt(gross)} &nbsp;·&nbsp; <b style="color:var(--navy)">${pct}%</b></span>
+      </div>
+      <div class="prog-bar">
+        <div class="prog-fill" style="width:${pct}%;background:${color}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════
+// PAYSLIP MODAL
+// ══════════════════════════════════════════
+function openPayslip(code) {
+  const e = RAW.find(x=>x.code===code);
+  if(!e) return;
+  const dedPct = e.ctc ? ((e.deductions/e.ctc)*100).toFixed(1) : 0;
+  const dClass = DEPT_CLASS[e.dept]||'d-other';
+  document.getElementById('modal-title').textContent = e.name;
+  document.getElementById('modal-subtitle').textContent = `${e.code} · ${e.desig} · February 2026`;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="slip-header">
+      <div>
+        <div class="slip-name">${e.name}</div>
+        <div class="slip-info">${e.code} &nbsp;·&nbsp; <span class="dept-tag ${dClass}">${e.dept}</span></div>
+        <div class="slip-info" style="margin-top:6px">🏢 ${e.branch} &nbsp;·&nbsp; 📅 DOJ: ${e.doj} &nbsp;·&nbsp; 📆 Days Paid: <b>${e.days}</b></div>
+        <div class="slip-info" style="margin-top:3px">🏦 ${e.bank}</div>
+      </div>
+      <div class="slip-ctc">
+        <div class="slip-ctc lbl">Monthly CTC</div>
+        <div class="slip-ctc big">${fmt(e.ctc)}</div>
+      </div>
+    </div>
+    <div class="slip-grid">
+      <div class="slip-box">
+        <h4>💰 Earnings</h4>
+        <div class="slip-row"><span>Basic Salary</span><span>${fmt(e.basic)}</span></div>
+        <div class="slip-row"><span>House Rent Allowance</span><span>${fmt(e.hra)}</span></div>
+        ${e.bonus?`<div class="slip-row"><span>Bonus</span><span style="color:var(--green)">${fmt(e.bonus)}</span></div>`:''}
+        ${e.other?`<div class="slip-row"><span>Other Allowances</span><span>${fmt(e.other)}</span></div>`:''}
+        <div class="slip-total"><span>Gross Earning</span><span>${fmt(e.gross)}</span></div>
+      </div>
+      <div class="slip-box">
+        <h4>📉 Deductions</h4>
+        ${e.pf?`<div class="slip-row"><span>Provident Fund (PF)</span><span style="color:var(--red)">${fmt(e.pf)}</span></div>`:''}
+        ${e.pt?`<div class="slip-row"><span>Professional Tax (PT)</span><span style="color:var(--red)">${fmt(e.pt)}</span></div>`:''}
+        ${e.lwf?`<div class="slip-row"><span>Labour Welfare Fund</span><span style="color:var(--red)">${fmt(e.lwf)}</span></div>`:''}
+        ${e.tax?`<div class="slip-row"><span>Income Tax (TDS)</span><span style="color:var(--red)">${fmt(e.tax)}</span></div>`:''}
+        ${e.loan?`<div class="slip-row"><span>Company Loan EMI</span><span style="color:var(--amber)">${fmt(e.loan)}</span></div>`:''}
+        ${e.food?`<div class="slip-row"><span>Food Deduction</span><span style="color:var(--red)">${fmt(e.food)}</span></div>`:''}
+        ${!e.deductions?`<div class="slip-row"><span style="color:var(--muted);font-style:italic">No deductions</span><span>—</span></div>`:''}
+        <div class="slip-total"><span>Total Deductions</span><span style="color:var(--red)">${fmt(e.deductions)}</span></div>
+      </div>
+    </div>
+    <div class="slip-net">
+      <div>
+        <div class="label">Net Pay (Take Home)</div>
+        <div class="slip-deduction-pct">Deduction: ${dedPct}% of CTC</div>
+      </div>
+      <div class="amount">${fmt(e.net)}</div>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal(e) {
+  if(!e||e.target===document.getElementById('modal'))
+    document.getElementById('modal').classList.remove('open');
+}
+
+// ══════════════════════════════════════════
+// START
+// ══════════════════════════════════════════
+Chart.defaults.font.family = "Calibri, 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 11;
+init();
+</script>
+</body>
+</html>
